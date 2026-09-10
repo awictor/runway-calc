@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.0
+- Copy metrics summary — one-click multiline snapshot to the clipboard for board/investor updates.
+
+## 0.4.0
+- Shareable links — inputs encode to a URL hash and reopen exactly on load.
+
+## 0.3.0
+- SaaS Quick Ratio and months-to-cash-flow-breakeven.
+
+## 0.2.0
+- Rule of 40 and burn multiple, with verdicts.
+
 ## 0.1.0 — first release
 - SaaS metrics: ARR, customers, avg lifetime, LTV, LTV:CAC, CAC payback, NRR, net MRR growth, cash runway.
 - 12-month MRR projection chart at the net growth rate.
