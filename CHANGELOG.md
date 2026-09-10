@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.0
+- Print / PDF board summary — clean print stylesheet + PDF button.
+
+## 0.11.0
+- Expansion vs new-logo split — accurate NRR (1 + expansion − churn), gross revenue retention, and new-logo growth.
+
 ## 0.10.0
 - ARR milestone ETAs — time to $1M / $10M / $100M ARR at the current net growth.
 
