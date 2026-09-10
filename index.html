@@ -66,6 +66,15 @@
   .scen thead th.base{color:var(--accent)}
   .scen td.base{font-weight:700}
   .info{cursor:help;margin-left:3px;color:var(--muted);font-size:10px;vertical-align:super}
+  @media print{
+    @page{margin:12mm}
+    #themeBtn,.btn,#shareMsg,.info{display:none!important}
+    body{background:#fff}
+    .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}
+    .wrap{display:block}
+    .wrap .card{margin-bottom:14px}
+    header p{display:none}
+  }
 </style>
 <script>
   (function(){try{var t=localStorage.getItem("runway.theme")||((window.matchMedia&&matchMedia("(prefers-color-scheme:dark)").matches)?"dark":"light");document.documentElement.setAttribute("data-theme",t);}catch(e){}})();
@@ -90,7 +99,7 @@
     <div class="row"><label>CAC<span class="hint">cost to acquire a customer</span></label><div class="ig"><span class="pre">$</span><input id="cac" type="number" step="10" value="300"></div></div>
     <div class="row"><label>Cash in bank</label><div class="ig"><span class="pre">$</span><input id="cash" type="number" step="1000" value="500000"></div></div>
     <div class="row"><label>Monthly net burn<span class="hint">cash out − in; 0 if break-even</span></label><div class="ig"><span class="pre">$</span><input id="burn" type="number" step="1000" value="40000"></div></div>
-    <div style="margin-top:14px;text-align:right;display:flex;gap:8px;justify-content:flex-end"><button id="copyBtn" class="btn">📋 Copy summary</button><button id="shareBtn" class="btn">🔗 Copy share link</button></div>
+    <div style="margin-top:14px;text-align:right;display:flex;gap:8px;justify-content:flex-end"><button id="copyBtn" class="btn">📋 Copy summary</button><button id="printBtn" class="btn">🖨 PDF</button><button id="shareBtn" class="btn">🔗 Copy share link</button></div>
     <div id="shareMsg" style="font-size:12px;color:var(--muted);text-align:right;margin-top:6px"></div>
   </section>
 
@@ -160,7 +169,7 @@
 
 <footer>
   <b>Runway</b> · offline SaaS metrics calculator · <a href="https://github.com/awictor/runway-calc">source</a><br>
-  Estimates for planning — validate against your billing system. © <span id="yr">2026</span> Alex Wictor · MIT · v0.11.0
+  Estimates for planning — validate against your billing system. © <span id="yr">2026</span> Alex Wictor · MIT · v0.12.0
 </footer>
 
 <script>
@@ -405,6 +414,7 @@ $("copyBtn").onclick=()=>{
   if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(()=>msg("✓ Summary copied to clipboard."),()=>msg("Copy failed — select manually."));
   else msg("Clipboard unavailable.");
 };
+$("printBtn").onclick=()=>window.print();
 // Share link
 $("shareBtn").onclick=()=>{
   const url=location.origin+location.pathname+"#s="+encodeInputs(readState());
