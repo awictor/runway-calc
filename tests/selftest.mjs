@@ -19,7 +19,7 @@ globalThis.matchMedia=globalThis.window.matchMedia;
 try{Object.defineProperty(globalThis,'navigator',{value:{clipboard:{writeText:()=>Promise.resolve()}},configurable:true});}catch{}
 
 const js=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
-const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText,scenarios};`;
+const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText,scenarios,magicNumber};`;
 eval(wrapped);
 const t=globalThis.__t;
 
@@ -106,6 +106,12 @@ check('scenarios: best beats base beats worst on growth',()=>{
   assert.ok(sc.base.netGrowth>sc.worst.netGrowth);
   assert.ok(sc.best.mrr12>sc.base.mrr12 && sc.base.mrr12>sc.worst.mrr12);
   assert.ok(Math.abs(sc.base.netGrowth-5)<0.001); // base unchanged
+});
+
+check('magicNumber: net new ARR / S&M',()=>{
+  // sm = 300*(20000*.08)/50 = 9600; netNewARR = 20000*.05*12 = 12000; magic = 1.25
+  assert.ok(Math.abs(t.magicNumber(base)-1.25)<0.001,'mn '+t.magicNumber(base));
+  assert.equal(t.magicNumber({...base,growth:0}),Infinity); // no S&M
 });
 
 console.log(`\n${n} checks passed.`);
