@@ -24,7 +24,7 @@ eval(wrapped);
 const t=globalThis.__t;
 
 let n=0; const check=(name,fn)=>{fn();n++;console.log('  ok -',name);};
-const base={mrr:20000,growth:8,churn:3,gm:80,arpa:50,cac:300,cash:500000,burn:40000};
+const base={mrr:20000,growth:8,churn:3,gm:80,arpa:50,cac:300,cash:500000,burn:40000,expansion:2};
 
 check('saasMetrics: ARR, customers, lifetime',()=>{
   const m=t.saasMetrics(base);
@@ -42,7 +42,9 @@ check('saasMetrics: LTV, LTV:CAC, payback',()=>{
 });
 check('saasMetrics: NRR, net growth, runway',()=>{
   const m=t.saasMetrics(base);
-  assert.ok(Math.abs(m.nrr-105)<0.001);        // 1+0.08-0.03
+  assert.ok(Math.abs(m.nrr-99)<0.001);         // 1+expansion(2%)-churn(3%) = 99%
+  assert.ok(Math.abs(m.grr-97)<0.001);         // 1-churn = 97%
+  assert.ok(Math.abs(m.newLogoGrowth-6)<0.001);// growth 8 - expansion 2
   assert.ok(Math.abs(m.netGrowth-5)<0.001);
   assert.ok(Math.abs(m.runwayMonths-12.5)<0.001); // 500000/40000
   assert.equal(t.saasMetrics({...base,burn:0}).runwayMonths,Infinity);
