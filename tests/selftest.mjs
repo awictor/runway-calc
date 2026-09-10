@@ -19,7 +19,7 @@ globalThis.matchMedia=globalThis.window.matchMedia;
 try{Object.defineProperty(globalThis,'navigator',{value:{clipboard:{writeText:()=>Promise.resolve()}},configurable:true});}catch{}
 
 const js=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
-const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs};`;
+const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText};`;
 eval(wrapped);
 const t=globalThis.__t;
 
@@ -90,6 +90,14 @@ check('share codec: round-trips inputs, rejects garbage',()=>{
   const enc=t.encodeInputs(base);
   assert.deepEqual(t.decodeInputs(enc),base);
   assert.equal(t.decodeInputs('!!!bad'),null);
+});
+
+check('summaryText: multiline snapshot with key metrics',()=>{
+  const txt=t.summaryText(base);
+  assert.ok(txt.split('\n').length>=6);
+  assert.match(txt,/ARR \$240,000/);
+  assert.match(txt,/LTV:CAC 4\.4×/);
+  assert.match(txt,/Runway 12\.5 mo/);
 });
 
 console.log(`\n${n} checks passed.`);
