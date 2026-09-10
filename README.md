@@ -2,7 +2,7 @@
 
 **SaaS metrics & cash-runway calculator.** Type your numbers, see your unit economics and how long your cash lasts — instantly. Runs 100% in the browser: no signup, no backend, works offline.
 
-![version](https://img.shields.io/badge/version-0.3.0-4F46E5) ![status](https://img.shields.io/badge/status-live-4F46E5) [![CI](https://github.com/awictor/runway-calc/actions/workflows/ci.yml/badge.svg)](https://github.com/awictor/runway-calc/actions/workflows/ci.yml)
+![version](https://img.shields.io/badge/version-0.4.0-4F46E5) ![status](https://img.shields.io/badge/status-live-4F46E5) [![CI](https://github.com/awictor/runway-calc/actions/workflows/ci.yml/badge.svg)](https://github.com/awictor/runway-calc/actions/workflows/ci.yml)
 
 ## Why
 
@@ -19,6 +19,7 @@ Founders juggle MRR, churn, CAC, and burn in scattered spreadsheets. Runway puts
 - ✅ **Cash runway** in months (∞ when cash-flow positive)
 - ✅ **12-month MRR projection** chart at your net growth rate
 - ✅ Plain-English **verdicts** on LTV:CAC, payback, and runway health
+- ✅ **Shareable link** — copy a link that reopens the exact numbers (encoded in the URL hash, nothing sent to a server)
 - ✅ Dark mode, inputs remembered locally, zero dependencies — one `index.html`
 
 ## Run
