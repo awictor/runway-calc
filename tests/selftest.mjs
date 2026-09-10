@@ -17,7 +17,7 @@ globalThis.window={matchMedia:()=>({matches:false})};
 globalThis.matchMedia=globalThis.window.matchMedia;
 
 const js=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
-const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts};`;
+const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts};`;
 eval(wrapped);
 const t=globalThis.__t;
 
@@ -70,6 +70,18 @@ check('growthEfficiency: Rule of 40 + burn multiple',()=>{
 check('effVerdicts: flags sub-40 and high burn multiple',()=>{
   const v=t.effVerdicts(t.growthEfficiency(base));
   assert.ok(v.some(x=>x.level==='warn'||x.level==='bad'));
+});
+
+check('quickRatio: growth vs churn',()=>{
+  assert.ok(Math.abs(t.quickRatio(8,3)-2.667)<0.01);
+  assert.equal(t.quickRatio(8,0),Infinity);
+});
+check('monthsToBreakeven: grows into profit; 0 if profitable; ∞ if flat',()=>{
+  // base: gm .8, burn 40000, target MRR = 20000 + 40000/0.8 = 70000; r=.05
+  // months = ln(70000/20000)/ln(1.05) = ln(3.5)/ln(1.05) ≈ 25.68
+  assert.ok(Math.abs(t.monthsToBreakeven(base)-25.68)<0.2,'be '+t.monthsToBreakeven(base));
+  assert.equal(t.monthsToBreakeven({...base,burn:0}),0);
+  assert.equal(t.monthsToBreakeven({...base,growth:3,churn:3}),Infinity); // net 0 growth
 });
 
 console.log(`\n${n} checks passed.`);
