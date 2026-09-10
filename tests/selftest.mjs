@@ -19,7 +19,7 @@ globalThis.matchMedia=globalThis.window.matchMedia;
 try{Object.defineProperty(globalThis,'navigator',{value:{clipboard:{writeText:()=>Promise.resolve()}},configurable:true});}catch{}
 
 const js=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
-const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText,scenarios,magicNumber,retentionCurve,halfLife};`;
+const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText,scenarios,magicNumber,retentionCurve,halfLife,arrEta};`;
 eval(wrapped);
 const t=globalThis.__t;
 
@@ -121,6 +121,13 @@ check('retentionCurve + halfLife',()=>{
   assert.ok(Math.abs(rc[12]-Math.pow(0.97,12)*100)<0.001);
   assert.ok(Math.abs(t.halfLife(3)-22.756)<0.01,'hl '+t.halfLife(3));
   assert.equal(t.halfLife(0),Infinity);
+});
+
+check('arrEta: months to a target ARR; reached / never edges',()=>{
+  // base MRR 20000, net 5%/mo. to $1M ARR (MRR 83333): ln(83333/20000)/ln(1.05) ≈ 29.25
+  assert.ok(Math.abs(t.arrEta(20000,5,1e6)-29.25)<0.2,'eta '+t.arrEta(20000,5,1e6));
+  assert.equal(t.arrEta(100000,5,1e6),0);   // already past ($1.2M ARR)
+  assert.equal(t.arrEta(20000,0,1e6),Infinity);
 });
 
 console.log(`\n${n} checks passed.`);
