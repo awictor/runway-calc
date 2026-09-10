@@ -2,7 +2,7 @@
 
 **SaaS metrics & cash-runway calculator.** Type your numbers, see your unit economics and how long your cash lasts — instantly. Runs 100% in the browser: no signup, no backend, works offline.
 
-![version](https://img.shields.io/badge/version-0.6.0-4F46E5) ![status](https://img.shields.io/badge/status-live-4F46E5) [![CI](https://github.com/awictor/runway-calc/actions/workflows/ci.yml/badge.svg)](https://github.com/awictor/runway-calc/actions/workflows/ci.yml)
+![version](https://img.shields.io/badge/version-0.7.0-4F46E5) ![status](https://img.shields.io/badge/status-live-4F46E5) [![CI](https://github.com/awictor/runway-calc/actions/workflows/ci.yml/badge.svg)](https://github.com/awictor/runway-calc/actions/workflows/ci.yml)
 
 ## Why
 
@@ -16,6 +16,7 @@ Founders juggle MRR, churn, CAC, and burn in scattered spreadsheets. Runway puts
 - ✅ **Net revenue retention** and **net MRR growth**
 - ✅ **Rule of 40** and **burn multiple** — the two efficiency benchmarks investors ask about
 - ✅ **SaaS Quick Ratio** and **months to cash-flow breakeven**
+- ✅ **Magic number** — net new ARR per dollar of sales & marketing
 - ✅ **Cash runway** in months (∞ when cash-flow positive)
 - ✅ **12-month MRR projection** chart at your net growth rate
 - ✅ **Scenario compare** — worst / base / best side-by-side from an adjustable growth spread
