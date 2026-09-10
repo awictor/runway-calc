@@ -40,11 +40,6 @@ node tests/selftest.mjs
 
 The pure metric functions are covered by a headless suite that runs the app's real code; CI runs it on every push.
 
-## Sellable as
-
-- A **$9 one-time** or **$5/mo** micro-tool for indie founders
-- A free lead-magnet / embedded calculator on a fractional-CFO or VC site
-
 ## License
 
 MIT © Alex Wictor
