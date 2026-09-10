@@ -66,7 +66,13 @@
   .scen thead th.base{color:var(--accent)}
   .scen td.base{font-weight:700}
   .info{cursor:help;margin-left:3px;color:var(--muted);font-size:10px;vertical-align:super}
-  @media print{
+  h2[id]{scroll-margin-top:56px}
+  .nav{position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--line)}
+  .nav .navin{max-width:980px;margin:0 auto;display:flex;gap:6px;overflow-x:auto;padding:8px 16px}
+  .nav a{white-space:nowrap;font-size:12.5px;color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:20px;border:1px solid transparent}
+  .nav a:hover{color:var(--accent-d);border-color:var(--line);background:var(--card)}
+  .nav a.active{color:var(--accent-d);background:rgba(79,70,229,.12);border-color:rgba(79,70,229,.35);font-weight:600}
+  @media print{ .nav{display:none}
     @page{margin:12mm}
     #themeBtn,.btn,#shareMsg,.info{display:none!important}
     body{background:#fff}
@@ -87,6 +93,17 @@
   <p>Your unit economics and cash runway in real time. Runs 100% in your browser — nothing leaves your device.</p>
 </header>
 
+<nav class="nav" aria-label="Jump to section">
+  <div class="navin">
+    <a href="#metrics-sec">Metrics</a>
+    <a href="#proj-sec">Projection</a>
+    <a href="#scen-sec">Scenarios</a>
+    <a href="#ret-sec">Retention</a>
+    <a href="#arr-sec">Milestones</a>
+    <a href="#burn-sec">Burn</a>
+  </div>
+</nav>
+
 <div class="wrap">
   <section class="card">
     <h2>Your numbers</h2>
@@ -104,7 +121,7 @@
   </section>
 
   <section class="card result">
-    <h2>Metrics</h2>
+    <h2 id="metrics-sec">Metrics</h2>
     <div class="grid3">
       <div class="stat"><div id="arr" class="v">—</div><div class="k">ARR</div></div>
       <div class="stat"><div id="customers" class="v">—</div><div class="k">Customers</div></div>
@@ -129,7 +146,7 @@
 
 <div class="fullwrap">
   <section class="card">
-    <h2>12-month MRR projection</h2>
+    <h2 id="proj-sec">12-month MRR projection</h2>
     <svg id="chart" viewBox="0 0 640 240" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected MRR over 12 months"></svg>
     <div id="chartNote" style="color:var(--muted);font-size:12px;padding-top:4px"></div>
   </section>
@@ -137,7 +154,7 @@
 
 <div class="fullwrap">
   <section class="card">
-    <h2>Scenario compare</h2>
+    <h2 id="scen-sec">Scenario compare</h2>
     <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);margin-bottom:12px">
       <span>Spread growth by ±</span>
       <div class="ig" style="width:80px"><span class="pre">±</span><input id="spread" type="number" step="0.5" value="2"></div>
@@ -149,7 +166,7 @@
 
 <div class="fullwrap">
   <section class="card">
-    <h2>Cohort retention</h2>
+    <h2 id="ret-sec">Cohort retention</h2>
     <svg id="retChart" viewBox="0 0 640 200" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Revenue retained from a cohort over 24 months"></svg>
     <div id="retNote" style="color:var(--muted);font-size:12px;padding-top:4px"></div>
   </section>
@@ -157,7 +174,7 @@
 
 <div class="fullwrap">
   <section class="card">
-    <h2>ARR milestones</h2>
+    <h2 id="arr-sec">ARR milestones</h2>
     <div class="grid3">
       <div class="stat"><div id="eta1" class="v">—</div><div class="k">to $1M ARR</div></div>
       <div class="stat"><div id="eta10" class="v">—</div><div class="k">to $10M ARR</div></div>
@@ -169,7 +186,7 @@
 
 <div class="fullwrap">
   <section class="card">
-    <h2>Burn sensitivity</h2>
+    <h2 id="burn-sec">Burn sensitivity</h2>
     <div id="burnHost" style="overflow-x:auto"></div>
     <div style="color:var(--muted);font-size:12px;padding-top:8px">How runway and time-to-breakeven shift if monthly burn changes.</div>
   </section>
@@ -177,7 +194,7 @@
 
 <footer>
   <b>Runway</b> · offline SaaS metrics calculator · <a href="https://github.com/awictor/runway-calc">source</a><br>
-  Estimates for planning — validate against your billing system. © <span id="yr">2026</span> Alex Wictor · MIT · v0.13.0
+  Estimates for planning — validate against your billing system. © <span id="yr">2026</span> Alex Wictor · MIT · v0.14.0
 </footer>
 
 <script>
@@ -430,6 +447,15 @@ $("copyBtn").onclick=()=>{
   else msg("Clipboard unavailable.");
 };
 $("printBtn").onclick=()=>window.print();
+// Active-section highlight in the sticky nav
+(function(){
+  const links=[...document.querySelectorAll(".nav a")];
+  if(!links.length||!("IntersectionObserver" in window)) return;
+  const secs=links.map(a=>document.getElementById(a.getAttribute("href").slice(1))).filter(Boolean);
+  const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ const id="#"+e.target.id;
+    links.forEach(a=>a.classList.toggle("active",a.getAttribute("href")===id)); } }),{rootMargin:"-45% 0px -45% 0px",threshold:0});
+  secs.forEach(s=>io.observe(s));
+})();
 function renderBurn(s){
   const host=$("burnHost"); if(!host) return;
   const rows=burnSensitivity(s,[-20,-10,0,10,20]);
