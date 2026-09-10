@@ -167,9 +167,17 @@
   </section>
 </div>
 
+<div class="fullwrap">
+  <section class="card">
+    <h2>Burn sensitivity</h2>
+    <div id="burnHost" style="overflow-x:auto"></div>
+    <div style="color:var(--muted);font-size:12px;padding-top:8px">How runway and time-to-breakeven shift if monthly burn changes.</div>
+  </section>
+</div>
+
 <footer>
   <b>Runway</b> · offline SaaS metrics calculator · <a href="https://github.com/awictor/runway-calc">source</a><br>
-  Estimates for planning — validate against your billing system. © <span id="yr">2026</span> Alex Wictor · MIT · v0.12.0
+  Estimates for planning — validate against your billing system. © <span id="yr">2026</span> Alex Wictor · MIT · v0.13.0
 </footer>
 
 <script>
@@ -292,6 +300,12 @@ function drawChart(series){
 const KEYS=["mrr","growth","churn","gm","arpa","cac","cash","burn","expansion"];
 function readState(){ const s={}; KEYS.forEach(k=>s[k]=num(k)); return s; }
 
+// Runway + breakeven across a set of burn deltas (%), holding everything else fixed.
+function burnSensitivity(s,deltas){
+  return deltas.map(d=>{ const burn=s.burn*(1+d/100);
+    return {delta:d, burn, runway:burn>0?s.cash/burn:Infinity, breakeven:monthsToBreakeven({...s,burn})}; });
+}
+
 // Months to reach a target ARR at the current net MRR growth. 0 if already there, ∞ if not growing.
 function arrEta(mrr,netGrowthPct,targetARR){
   const targetMRR=targetARR/12; if(mrr>=targetMRR) return 0;
@@ -374,6 +388,7 @@ function calc(){
   const ng=s.growth-s.churn, etaFmt=x=>x===0?"reached":(isFinite(x)?(x<24?x.toFixed(1)+" mo":(x/12).toFixed(1)+" yr"):"—");
   [["eta1",1e6],["eta10",1e7],["eta100",1e8]].forEach(([id,tgt])=>{ const e=arrEta(s.mrr,ng,tgt);
     const el=$(id); el.textContent=etaFmt(e); el.className="v "+(e===0?"pos":(isFinite(e)?"":"neg")); });
+  renderBurn(s);
   const hl=halfLife(s.churn);
   $("retNote").textContent = isFinite(hl) ? `Revenue half-life ≈ ${hl.toFixed(1)} months — half of a cohort's revenue remains after that at ${s.churn}% monthly churn.` : "No churn — cohorts never decay.";
 }
@@ -415,6 +430,16 @@ $("copyBtn").onclick=()=>{
   else msg("Clipboard unavailable.");
 };
 $("printBtn").onclick=()=>window.print();
+function renderBurn(s){
+  const host=$("burnHost"); if(!host) return;
+  const rows=burnSensitivity(s,[-20,-10,0,10,20]);
+  const mo=x=>x===0?"now":(isFinite(x)?x.toFixed(0)+" mo":"never");
+  const rwo=x=>isFinite(x)?x.toFixed(1)+" mo":"∞";
+  let h='<table class="scen"><thead><tr><th>Burn Δ</th><th>Monthly burn</th><th>Runway</th><th>Mo. to breakeven</th></tr></thead><tbody>';
+  rows.forEach(r=>{ const base=r.delta===0;
+    h+=`<tr><td>${(r.delta>0?"+":"")+r.delta}%</td><td class="${base?'base':''}">${money(r.burn)}</td><td class="${base?'base':''}">${rwo(r.runway)}</td><td>${mo(r.breakeven)}</td></tr>`; });
+  h+='</tbody></table>'; host.innerHTML=h;
+}
 // Share link
 $("shareBtn").onclick=()=>{
   const url=location.origin+location.pathname+"#s="+encodeInputs(readState());
@@ -461,7 +486,7 @@ if(loadFromHash()) $("shareMsg").textContent="Opened from a shared link.";
 })();
 calc();
 
-if(typeof module!=="undefined") module.exports={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText,scenarios,magicNumber,retentionCurve,halfLife,arrEta};
+if(typeof module!=="undefined") module.exports={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText,scenarios,magicNumber,retentionCurve,halfLife,arrEta,burnSensitivity};
 </script>
 </body>
 </html>

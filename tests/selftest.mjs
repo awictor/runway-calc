@@ -19,7 +19,7 @@ globalThis.matchMedia=globalThis.window.matchMedia;
 try{Object.defineProperty(globalThis,'navigator',{value:{clipboard:{writeText:()=>Promise.resolve()}},configurable:true});}catch{}
 
 const js=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
-const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText,scenarios,magicNumber,retentionCurve,halfLife,arrEta};`;
+const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText,scenarios,magicNumber,retentionCurve,halfLife,arrEta,burnSensitivity};`;
 eval(wrapped);
 const t=globalThis.__t;
 
@@ -130,6 +130,14 @@ check('arrEta: months to a target ARR; reached / never edges',()=>{
   assert.ok(Math.abs(t.arrEta(20000,5,1e6)-29.25)<0.2,'eta '+t.arrEta(20000,5,1e6));
   assert.equal(t.arrEta(100000,5,1e6),0);   // already past ($1.2M ARR)
   assert.equal(t.arrEta(20000,0,1e6),Infinity);
+});
+
+check('burnSensitivity: runway scales inversely with burn',()=>{
+  const rows=t.burnSensitivity(base,[-20,0,20]); // cash 500k, burn 40k
+  assert.equal(rows.length,3);
+  assert.ok(Math.abs(rows[1].runway-12.5)<0.001);        // base
+  assert.ok(Math.abs(rows[0].runway-15.625)<0.001);      // burn 32k
+  assert.ok(Math.abs(rows[2].runway-10.4167)<0.001);     // burn 48k
 });
 
 console.log(`\n${n} checks passed.`);
