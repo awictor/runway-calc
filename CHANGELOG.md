@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.14.0
+- Sticky section nav with active-section highlighting.
+
+## 0.13.0
+- Burn sensitivity table — runway and time-to-breakeven at burn ±10/20%.
+
 ## 0.12.0
 - Print / PDF board summary — clean print stylesheet + PDF button.
 
