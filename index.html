@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Runway — SaaS Metrics & Runway Calculator</title>
+<meta name="description" content="Instantly compute your SaaS metrics: ARR, LTV, LTV:CAC, CAC payback, net revenue retention, cash runway, and a 12-month MRR projection. 100% offline, no signup." />
+<meta name="theme-color" content="#4F46E5" />
+<meta name="color-scheme" content="light dark" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Runway — SaaS Metrics & Runway Calculator" />
+<meta property="og:description" content="ARR, LTV, LTV:CAC, CAC payback, NRR, cash runway, and a 12-month MRR projection — in one offline screen." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%234F46E5'/%3E%3Cpath d='M12 44 L28 30 L38 38 L52 20' fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<style>
+  :root{
+    --bg:#f6f7fb; --ink:#1e2233; --accent:#4F46E5; --accent-d:#4038c7;
+    --card:#ffffff; --line:#e6e8f0; --muted:#6b7280; --good:#0f9d58; --bad:#e5484d; --field:#fff;
+    --shadow:0 1px 2px rgba(30,34,51,.05),0 8px 24px rgba(30,34,51,.07);
+  }
+  [data-theme="dark"]{
+    --bg:#12141c; --ink:#eef0f6; --accent:#7c73ff; --accent-d:#948cff;
+    --card:#1b1e29; --line:#2c3040; --muted:#9098ad; --good:#34c884; --bad:#f0685c; --field:#12141c;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+  html{scroll-behavior:smooth}
+  html[data-theme="dark"] body{background:var(--bg)}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  header{padding:28px 20px 8px;text-align:center;position:relative}
+  header h1{margin:0;font-size:26px;letter-spacing:-.02em}
+  header h1 .m{color:var(--accent)}
+  header p{margin:6px 0 0;color:var(--muted);font-size:14px}
+  #themeBtn{position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:50%;
+    border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:17px;cursor:pointer;box-shadow:var(--shadow)}
+  .wrap{max-width:980px;margin:0 auto;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:760px){.wrap{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+  .card h2{margin:0 0 14px;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .row{display:flex;align-items:center;justify-content:space-between;margin:10px 0;gap:12px}
+  .row label{font-size:14px;flex:1}
+  .row .hint{display:block;font-size:11px;color:var(--muted)}
+  .ig{position:relative;width:130px}
+  .ig .pre{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px}
+  input{width:100%;padding:9px 10px 9px 22px;border:1px solid var(--line);border-radius:9px;font-size:14px;text-align:right;background:var(--field);color:var(--ink)}
+  input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+  .result h2{color:var(--accent)}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px}
+  .stat{background:var(--bg);border-radius:10px;padding:12px;text-align:center}
+  .stat .v{font-size:20px;font-weight:600} .stat .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .pos{color:var(--good)} .neg{color:var(--bad)}
+  .fullwrap{max-width:980px;margin:0 auto;padding:0 20px 20px}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:24px}
+  footer a{color:var(--accent-d);text-decoration:none}
+  svg{width:100%;height:auto}
+  .verdict{margin-top:12px;font-size:13px;display:flex;flex-direction:column;gap:6px}
+  .verdict .v{display:flex;gap:8px;align-items:flex-start}
+  .verdict .dot{flex:none;width:8px;height:8px;border-radius:50%;margin-top:5px}
+  .verdict .good .dot{background:var(--good)} .verdict .warn .dot{background:var(--accent)} .verdict .bad .dot{background:var(--bad)}
+</style>
+<script>
+  (function(){try{var t=localStorage.getItem("runway.theme")||((window.matchMedia&&matchMedia("(prefers-color-scheme:dark)").matches)?"dark":"light");document.documentElement.setAttribute("data-theme",t);}catch(e){}})();
+</script>
+</head>
+<body>
+<header>
+  <button id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+  <h1><span class="m">Runway</span> — SaaS metrics</h1>
+  <p>Your unit economics and cash runway in real time. Runs 100% in your browser — nothing leaves your device.</p>
+</header>
+
+<div class="wrap">
+  <section class="card">
+    <h2>Your numbers</h2>
+    <div class="row"><label>MRR<span class="hint">monthly recurring revenue</span></label><div class="ig"><span class="pre">$</span><input id="mrr" type="number" step="100" value="20000"></div></div>
+    <div class="row"><label>Monthly growth %<span class="hint">new + expansion</span></label><div class="ig"><span class="pre">%</span><input id="growth" type="number" step="0.5" value="8"></div></div>
+    <div class="row"><label>Monthly revenue churn %</label><div class="ig"><span class="pre">%</span><input id="churn" type="number" step="0.1" value="3"></div></div>
+    <div class="row"><label>Gross margin %</label><div class="ig"><span class="pre">%</span><input id="gm" type="number" step="1" value="80"></div></div>
+    <div class="row"><label>ARPA<span class="hint">avg revenue / account / mo</span></label><div class="ig"><span class="pre">$</span><input id="arpa" type="number" step="1" value="50"></div></div>
+    <div class="row"><label>CAC<span class="hint">cost to acquire a customer</span></label><div class="ig"><span class="pre">$</span><input id="cac" type="number" step="10" value="300"></div></div>
+    <div class="row"><label>Cash in bank</label><div class="ig"><span class="pre">$</span><input id="cash" type="number" step="1000" value="500000"></div></div>
+    <div class="row"><label>Monthly net burn<span class="hint">cash out − in; 0 if break-even</span></label><div class="ig"><span class="pre">$</span><input id="burn" type="number" step="1000" value="40000"></div></div>
+  </section>
+
+  <section class="card result">
+    <h2>Metrics</h2>
+    <div class="grid3">
+      <div class="stat"><div id="arr" class="v">—</div><div class="k">ARR</div></div>
+      <div class="stat"><div id="customers" class="v">—</div><div class="k">Customers</div></div>
+      <div class="stat"><div id="ltv" class="v">—</div><div class="k">LTV</div></div>
+      <div class="stat"><div id="ltvcac" class="v">—</div><div class="k">LTV : CAC</div></div>
+      <div class="stat"><div id="payback" class="v">—</div><div class="k">CAC payback</div></div>
+      <div class="stat"><div id="nrr" class="v">—</div><div class="k">Net rev retention</div></div>
+      <div class="stat"><div id="runway" class="v">—</div><div class="k">Cash runway</div></div>
+      <div class="stat"><div id="lifetime" class="v">—</div><div class="k">Avg lifetime</div></div>
+      <div class="stat"><div id="netgrowth" class="v">—</div><div class="k">Net MRR growth</div></div>
+    </div>
+    <div id="verdict" class="verdict"></div>
+  </section>
+</div>
+
+<div class="fullwrap">
+  <section class="card">
+    <h2>12-month MRR projection</h2>
+    <svg id="chart" viewBox="0 0 640 240" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Projected MRR over 12 months"></svg>
+    <div id="chartNote" style="color:var(--muted);font-size:12px;padding-top:4px"></div>
+  </section>
+</div>
+
+<footer>
+  <b>Runway</b> · offline SaaS metrics calculator · <a href="https://github.com/awictor/runway-calc">source</a><br>
+  Estimates for planning — validate against your billing system. © <span id="yr">2026</span> Alex Wictor · MIT · v0.1.0
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+const num = id => { const v=parseFloat($(id).value); return isNaN(v)?0:v; };
+const money = n => (n<0?"-$":"$") + Math.abs(n).toLocaleString(undefined,{maximumFractionDigits:0});
+
+// Core SaaS metrics from the input set. Pure — no DOM.
+function saasMetrics(s){
+  const churn=s.churn/100, gm=s.gm/100, growth=s.growth/100;
+  const customers = s.arpa>0 ? s.mrr/s.arpa : 0;
+  const lifetimeMonths = churn>0 ? 1/churn : Infinity;               // avg customer lifetime
+  const ltv = churn>0 ? (s.arpa*gm)/churn : Infinity;               // gross-margin LTV
+  const ltvCac = s.cac>0 ? ltv/s.cac : Infinity;
+  const paybackMonths = (s.arpa*gm)>0 ? s.cac/(s.arpa*gm) : Infinity; // gross-margin payback
+  const nrr = (1 + growth - churn) * 100;                            // simplified net revenue retention
+  const netGrowth = (growth - churn) * 100;                          // net MRR growth rate
+  const runwayMonths = s.burn>0 ? s.cash/s.burn : Infinity;
+  return {arr:s.mrr*12, customers, lifetimeMonths, ltv, ltvCac, paybackMonths, nrr, netGrowth, runwayMonths};
+}
+
+// 12-month MRR projection at net (growth − churn) monthly rate.
+function projectMRR(mrr, growthPct, churnPct){
+  const r=(growthPct-churnPct)/100; const out=[]; let m=mrr;
+  for(let i=0;i<=12;i++){ out.push(m); m*=(1+r); }
+  return out;
+}
+
+function verdicts(m){
+  const out=[];
+  if(m.ltvCac>=3) out.push({level:"good",msg:`Healthy LTV:CAC of ${m.ltvCac.toFixed(1)}× (≥3 is the rule of thumb).`});
+  else if(isFinite(m.ltvCac)) out.push({level:"bad",msg:`LTV:CAC is only ${m.ltvCac.toFixed(1)}× — under 3×, growth may not pay back.`});
+  if(isFinite(m.paybackMonths)){
+    if(m.paybackMonths<=12) out.push({level:"good",msg:`CAC pays back in ${m.paybackMonths.toFixed(1)} months (<12 is strong).`});
+    else out.push({level:"warn",msg:`CAC payback is ${m.paybackMonths.toFixed(1)} months — long payback ties up cash.`});
+  }
+  if(m.netGrowth<0) out.push({level:"bad",msg:`Churn (${(m.netGrowth<0?"":"")}) exceeds growth — MRR is shrinking.`});
+  if(isFinite(m.runwayMonths)){
+    if(m.runwayMonths<6) out.push({level:"bad",msg:`Only ${m.runwayMonths.toFixed(1)} months of runway — raise or cut burn soon.`});
+    else if(m.runwayMonths<12) out.push({level:"warn",msg:`${m.runwayMonths.toFixed(1)} months of runway — start planning the next raise.`});
+    else out.push({level:"good",msg:`${m.runwayMonths.toFixed(0)} months of runway.`});
+  } else out.push({level:"good",msg:"Cash-flow positive — effectively infinite runway."});
+  return out;
+}
+
+function drawChart(series){
+  const svg=$("chart"); const W=640,H=240,pL=56,pR=14,pT=14,pB=26,pw=W-pL-pR,ph=H-pT-pB;
+  const max=Math.max(...series), min=Math.min(...series,0);
+  const X=i=>pL+i/(series.length-1)*pw, Y=v=>pT+(max-v)/((max-min)||1)*ph;
+  const pts=series.map((v,i)=>X(i).toFixed(1)+","+Y(v).toFixed(1)).join(" ");
+  let g=`<rect x="${pL}" y="${pT}" width="${pw}" height="${ph}" fill="none" stroke="var(--line)"/>`;
+  g+=`<polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>`;
+  g+=`<circle cx="${X(series.length-1).toFixed(1)}" cy="${Y(series[series.length-1]).toFixed(1)}" r="4" fill="var(--accent)"/>`;
+  g+=`<text x="${pL-6}" y="${(pT+8)}" text-anchor="end" font-size="10" fill="var(--muted)">${money(max)}</text>`;
+  g+=`<text x="${pL-6}" y="${H-pB}" text-anchor="end" font-size="10" fill="var(--muted)">${money(min)}</text>`;
+  g+=`<text x="${pL}" y="${H-8}" font-size="10" fill="var(--muted)">now</text>`;
+  g+=`<text x="${W-pR}" y="${H-8}" text-anchor="end" font-size="10" fill="var(--ink)">mo 12</text>`;
+  svg.innerHTML=g;
+}
+
+const KEYS=["mrr","growth","churn","gm","arpa","cac","cash","burn"];
+function readState(){ const s={}; KEYS.forEach(k=>s[k]=num(k)); return s; }
+
+function calc(){
+  const s=readState(), m=saasMetrics(s);
+  KEYS.forEach(k=>{ try{localStorage.setItem("runway."+k,s[k]);}catch(e){} });
+  $("arr").textContent=money(m.arr);
+  $("customers").textContent=Math.round(m.customers).toLocaleString();
+  $("ltv").textContent=isFinite(m.ltv)?money(m.ltv):"∞";
+  $("ltvcac").textContent=isFinite(m.ltvCac)?m.ltvCac.toFixed(1)+"×":"∞";
+  $("payback").textContent=isFinite(m.paybackMonths)?m.paybackMonths.toFixed(1)+" mo":"∞";
+  const nrrEl=$("nrr"); nrrEl.textContent=m.nrr.toFixed(0)+"%"; nrrEl.className="v "+(m.nrr>=100?"pos":"neg");
+  const rwEl=$("runway"); rwEl.textContent=isFinite(m.runwayMonths)?m.runwayMonths.toFixed(1)+" mo":"∞";
+  rwEl.className="v "+(!isFinite(m.runwayMonths)||m.runwayMonths>=12?"pos":(m.runwayMonths<6?"neg":""));
+  $("lifetime").textContent=isFinite(m.lifetimeMonths)?m.lifetimeMonths.toFixed(1)+" mo":"∞";
+  const ngEl=$("netgrowth"); ngEl.textContent=(m.netGrowth>=0?"+":"")+m.netGrowth.toFixed(1)+"%"; ngEl.className="v "+(m.netGrowth>=0?"pos":"neg");
+  const v=verdicts(m);
+  $("verdict").innerHTML=v.map(x=>`<div class="v ${x.level}"><span class="dot"></span><span>${x.msg}</span></div>`).join("");
+  drawChart(projectMRR(s.mrr,s.growth,s.churn));
+}
+document.querySelectorAll("input").forEach(el=>el.addEventListener("input",calc));
+
+// theme + year
+$("themeBtn").onclick=()=>{ const n=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";
+  document.documentElement.setAttribute("data-theme",n); try{localStorage.setItem("runway.theme",n);}catch(e){}
+  $("themeBtn").textContent=n==="dark"?"☀️":"🌙"; };
+$("themeBtn").textContent=document.documentElement.getAttribute("data-theme")==="dark"?"☀️":"🌙";
+try{$("yr").textContent=new Date().getFullYear();}catch(e){}
+KEYS.forEach(k=>{ try{const v=localStorage.getItem("runway."+k); if(v!=null) $(k).value=v;}catch(e){} });
+calc();
+
+if(typeof module!=="undefined") module.exports={saasMetrics,projectMRR,verdicts};
+</script>
+</body>
+</html>
