@@ -19,7 +19,7 @@ globalThis.matchMedia=globalThis.window.matchMedia;
 try{Object.defineProperty(globalThis,'navigator',{value:{clipboard:{writeText:()=>Promise.resolve()}},configurable:true});}catch{}
 
 const js=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
-const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText};`;
+const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText,scenarios};`;
 eval(wrapped);
 const t=globalThis.__t;
 
@@ -98,6 +98,14 @@ check('summaryText: multiline snapshot with key metrics',()=>{
   assert.match(txt,/ARR \$240,000/);
   assert.match(txt,/LTV:CAC 4\.4×/);
   assert.match(txt,/Runway 12\.5 mo/);
+});
+
+check('scenarios: best beats base beats worst on growth',()=>{
+  const sc=t.scenarios(base,2); // growth ±2, churn ∓1
+  assert.ok(sc.best.netGrowth>sc.base.netGrowth);
+  assert.ok(sc.base.netGrowth>sc.worst.netGrowth);
+  assert.ok(sc.best.mrr12>sc.base.mrr12 && sc.base.mrr12>sc.worst.mrr12);
+  assert.ok(Math.abs(sc.base.netGrowth-5)<0.001); // base unchanged
 });
 
 console.log(`\n${n} checks passed.`);
