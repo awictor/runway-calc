@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.10.0
+- ARR milestone ETAs — time to $1M / $10M / $100M ARR at the current net growth.
+
+## 0.9.0
+- Glossary tooltips — hover any metric for a plain-English definition.
+
 ## 0.8.0
 - Cohort retention curve — revenue retained over 24 months with a revenue half-life callout.
 
