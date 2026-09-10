@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.0
+- Cohort retention curve — revenue retained over 24 months with a revenue half-life callout.
+
+## 0.7.0
+- Magic number — net new ARR per dollar of implied sales & marketing spend.
+
+## 0.6.0
+- Scenario compare — worst/base/best from an adjustable growth spread.
+
 ## 0.5.0
 - Copy metrics summary — one-click multiline snapshot to the clipboard for board/investor updates.
 
