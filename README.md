@@ -2,7 +2,7 @@
 
 **SaaS metrics & cash-runway calculator.** Type your numbers, see your unit economics and how long your cash lasts — instantly. Runs 100% in the browser: no signup, no backend, works offline.
 
-![version](https://img.shields.io/badge/version-0.11.0-4F46E5) ![status](https://img.shields.io/badge/status-live-4F46E5) [![CI](https://github.com/awictor/runway-calc/actions/workflows/ci.yml/badge.svg)](https://github.com/awictor/runway-calc/actions/workflows/ci.yml)
+![version](https://img.shields.io/badge/version-0.12.0-4F46E5) ![status](https://img.shields.io/badge/status-live-4F46E5) [![CI](https://github.com/awictor/runway-calc/actions/workflows/ci.yml/badge.svg)](https://github.com/awictor/runway-calc/actions/workflows/ci.yml)
 
 ## Why
 
