@@ -13,11 +13,13 @@ function el(){ const e={value:'',textContent:'',innerHTML:'',className:'',style:
 const ids={};
 globalThis.document={getElementById:id=>ids[id]||(ids[id]=el()),querySelectorAll:()=>[],documentElement:el()};
 globalThis.localStorage={getItem:()=>null,setItem(){},removeItem(){}};
-globalThis.window={matchMedia:()=>({matches:false})};
+globalThis.location={hash:'',origin:'',pathname:''};
+globalThis.window={matchMedia:()=>({matches:false}),location:globalThis.location};
 globalThis.matchMedia=globalThis.window.matchMedia;
+try{Object.defineProperty(globalThis,'navigator',{value:{clipboard:{writeText:()=>Promise.resolve()}},configurable:true});}catch{}
 
 const js=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
-const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts};`;
+const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs};`;
 eval(wrapped);
 const t=globalThis.__t;
 
@@ -82,6 +84,12 @@ check('monthsToBreakeven: grows into profit; 0 if profitable; ∞ if flat',()=>{
   assert.ok(Math.abs(t.monthsToBreakeven(base)-25.68)<0.2,'be '+t.monthsToBreakeven(base));
   assert.equal(t.monthsToBreakeven({...base,burn:0}),0);
   assert.equal(t.monthsToBreakeven({...base,growth:3,churn:3}),Infinity); // net 0 growth
+});
+
+check('share codec: round-trips inputs, rejects garbage',()=>{
+  const enc=t.encodeInputs(base);
+  assert.deepEqual(t.decodeInputs(enc),base);
+  assert.equal(t.decodeInputs('!!!bad'),null);
 });
 
 console.log(`\n${n} checks passed.`);
