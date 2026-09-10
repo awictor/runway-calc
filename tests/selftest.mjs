@@ -19,7 +19,7 @@ globalThis.matchMedia=globalThis.window.matchMedia;
 try{Object.defineProperty(globalThis,'navigator',{value:{clipboard:{writeText:()=>Promise.resolve()}},configurable:true});}catch{}
 
 const js=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
-const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText,scenarios,magicNumber};`;
+const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText,scenarios,magicNumber,retentionCurve,halfLife};`;
 eval(wrapped);
 const t=globalThis.__t;
 
@@ -112,6 +112,15 @@ check('magicNumber: net new ARR / S&M',()=>{
   // sm = 300*(20000*.08)/50 = 9600; netNewARR = 20000*.05*12 = 12000; magic = 1.25
   assert.ok(Math.abs(t.magicNumber(base)-1.25)<0.001,'mn '+t.magicNumber(base));
   assert.equal(t.magicNumber({...base,growth:0}),Infinity); // no S&M
+});
+
+check('retentionCurve + halfLife',()=>{
+  const rc=t.retentionCurve(3,24);
+  assert.equal(rc.length,25);
+  assert.equal(rc[0],100);
+  assert.ok(Math.abs(rc[12]-Math.pow(0.97,12)*100)<0.001);
+  assert.ok(Math.abs(t.halfLife(3)-22.756)<0.01,'hl '+t.halfLife(3));
+  assert.equal(t.halfLife(0),Infinity);
 });
 
 console.log(`\n${n} checks passed.`);
