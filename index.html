@@ -82,7 +82,7 @@
     <div class="row"><label>CAC<span class="hint">cost to acquire a customer</span></label><div class="ig"><span class="pre">$</span><input id="cac" type="number" step="10" value="300"></div></div>
     <div class="row"><label>Cash in bank</label><div class="ig"><span class="pre">$</span><input id="cash" type="number" step="1000" value="500000"></div></div>
     <div class="row"><label>Monthly net burn<span class="hint">cash out − in; 0 if break-even</span></label><div class="ig"><span class="pre">$</span><input id="burn" type="number" step="1000" value="40000"></div></div>
-    <div style="margin-top:14px;text-align:right"><button id="shareBtn" class="btn">🔗 Copy share link</button></div>
+    <div style="margin-top:14px;text-align:right;display:flex;gap:8px;justify-content:flex-end"><button id="copyBtn" class="btn">📋 Copy summary</button><button id="shareBtn" class="btn">🔗 Copy share link</button></div>
     <div id="shareMsg" style="font-size:12px;color:var(--muted);text-align:right;margin-top:6px"></div>
   </section>
 
@@ -117,7 +117,7 @@
 
 <footer>
   <b>Runway</b> · offline SaaS metrics calculator · <a href="https://github.com/awictor/runway-calc">source</a><br>
-  Estimates for planning — validate against your billing system. © <span id="yr">2026</span> Alex Wictor · MIT · v0.4.0
+  Estimates for planning — validate against your billing system. © <span id="yr">2026</span> Alex Wictor · MIT · v0.5.0
 </footer>
 
 <script>
@@ -226,6 +226,20 @@ function drawChart(series){
 const KEYS=["mrr","growth","churn","gm","arpa","cac","cash","burn"];
 function readState(){ const s={}; KEYS.forEach(k=>s[k]=num(k)); return s; }
 
+// Plain-text metrics snapshot for board/investor updates.
+function summaryText(s){
+  const m=saasMetrics(s), e=growthEfficiency(s), qr=quickRatio(s.growth,s.churn), be=monthsToBreakeven(s);
+  const mo=x=>isFinite(x)?x.toFixed(1)+" mo":"∞";
+  return [
+    "Runway — SaaS snapshot",
+    `MRR ${money(s.mrr)} · ARR ${money(m.arr)} · ${Math.round(m.customers)} customers`,
+    `Net growth ${(m.netGrowth>=0?"+":"")+m.netGrowth.toFixed(1)}%/mo · NRR ${m.nrr.toFixed(0)}% · Quick ratio ${isFinite(qr)?qr.toFixed(1):"∞"}`,
+    `LTV ${isFinite(m.ltv)?money(m.ltv):"∞"} · LTV:CAC ${isFinite(m.ltvCac)?m.ltvCac.toFixed(1)+"×":"∞"} · CAC payback ${mo(m.paybackMonths)}`,
+    `Rule of 40: ${e.ruleOf40.toFixed(0)} · Burn multiple ${isFinite(e.burnMultiple)?e.burnMultiple.toFixed(2)+"×":"∞"}`,
+    `Runway ${mo(m.runwayMonths)} · ${be===0?"profitable now":"~"+(isFinite(be)?be.toFixed(0)+" mo to breakeven":"breakeven not reached")}`,
+  ].join("\n");
+}
+
 // Share codec: inputs -> compact base64url hash and back.
 function encodeInputs(s){
   const raw=KEYS.map(k=>+(+s[k]).toFixed(4)).join("~");
@@ -267,6 +281,12 @@ function calc(){
 }
 document.querySelectorAll("input").forEach(el=>el.addEventListener("input",calc));
 
+// Copy summary
+$("copyBtn").onclick=()=>{
+  const txt=summaryText(readState()), msg=x=>{ $("shareMsg").textContent=x; };
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(()=>msg("✓ Summary copied to clipboard."),()=>msg("Copy failed — select manually."));
+  else msg("Clipboard unavailable.");
+};
 // Share link
 $("shareBtn").onclick=()=>{
   const url=location.origin+location.pathname+"#s="+encodeInputs(readState());
@@ -290,7 +310,7 @@ KEYS.forEach(k=>{ try{const v=localStorage.getItem("runway."+k); if(v!=null) $(k
 if(loadFromHash()) $("shareMsg").textContent="Opened from a shared link.";
 calc();
 
-if(typeof module!=="undefined") module.exports={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs};
+if(typeof module!=="undefined") module.exports={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts,encodeInputs,decodeInputs,summaryText};
 </script>
 </body>
 </html>
