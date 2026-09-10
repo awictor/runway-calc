@@ -96,6 +96,8 @@
       <div class="stat"><div id="netgrowth" class="v">—</div><div class="k">Net MRR growth</div></div>
       <div class="stat"><div id="ruleOf40" class="v">—</div><div class="k">Rule of 40</div></div>
       <div class="stat"><div id="burnMult" class="v">—</div><div class="k">Burn multiple</div></div>
+      <div class="stat"><div id="quickRatio" class="v">—</div><div class="k">Quick ratio</div></div>
+      <div class="stat"><div id="breakeven" class="v">—</div><div class="k">Mo. to breakeven</div></div>
     </div>
     <div id="verdict" class="verdict"></div>
   </section>
@@ -111,7 +113,7 @@
 
 <footer>
   <b>Runway</b> · offline SaaS metrics calculator · <a href="https://github.com/awictor/runway-calc">source</a><br>
-  Estimates for planning — validate against your billing system. © <span id="yr">2026</span> Alex Wictor · MIT · v0.2.0
+  Estimates for planning — validate against your billing system. © <span id="yr">2026</span> Alex Wictor · MIT · v0.3.0
 </footer>
 
 <script>
@@ -152,6 +154,29 @@ function effVerdicts(eff){
     else if(eff.burnMultiple<2) out.push({level:"warn",msg:`Burn multiple ${eff.burnMultiple.toFixed(2)} — acceptable but watch it.`});
     else out.push({level:"bad",msg:`Burn multiple ${eff.burnMultiple.toFixed(2)} — burning a lot per $1 of new ARR.`});
   }
+  return out;
+}
+
+// SaaS Quick Ratio: gained MRR (growth) vs lost MRR (churn). ≥4 is excellent.
+function quickRatio(growthPct,churnPct){ return churnPct>0 ? growthPct/churnPct : Infinity; }
+
+// Months until gross profit covers opex, as MRR compounds at the net rate. 0 if already profitable.
+function monthsToBreakeven(s){
+  if(s.burn<=0) return 0;
+  const gm=s.gm/100, r=(s.growth-s.churn)/100;
+  if(gm<=0) return Infinity;
+  if(r<=0) return Infinity;                    // not growing -> never catches up
+  const targetMRR=s.mrr + s.burn/gm;           // MRR where gross profit = current opex
+  return Math.log(targetMRR/s.mrr)/Math.log(1+r);
+}
+function extraVerdicts(s){
+  const out=[]; const qr=quickRatio(s.growth,s.churn), be=monthsToBreakeven(s);
+  if(qr>=4) out.push({level:"good",msg:`Quick ratio ${isFinite(qr)?qr.toFixed(1):"∞"} — strong (≥4).`});
+  else if(qr>=2) out.push({level:"warn",msg:`Quick ratio ${qr.toFixed(1)} — okay; churn is eating growth.`});
+  else out.push({level:"bad",msg:`Quick ratio ${qr.toFixed(1)} — churn nearly offsets new revenue.`});
+  if(be===0) out.push({level:"good",msg:"Already cash-flow positive."});
+  else if(isFinite(be)) out.push({level:"warn",msg:`~${be.toFixed(0)} months to cash-flow breakeven at this growth.`});
+  else out.push({level:"bad",msg:"Won't reach breakeven at the current growth rate."});
   return out;
 }
 
@@ -214,7 +239,11 @@ function calc(){
   const r40=$("ruleOf40"); r40.textContent=eff.ruleOf40.toFixed(0); r40.className="v "+(eff.ruleOf40>=40?"pos":"neg");
   const bm=$("burnMult"); bm.textContent=isFinite(eff.burnMultiple)?eff.burnMultiple.toFixed(2)+"×":"∞";
   bm.className="v "+(isFinite(eff.burnMultiple)&&eff.burnMultiple<2?"pos":"neg");
-  const v=verdicts(m).concat(effVerdicts(eff));
+  const qr=quickRatio(s.growth,s.churn), be=monthsToBreakeven(s);
+  const qrEl=$("quickRatio"); qrEl.textContent=isFinite(qr)?qr.toFixed(1):"∞"; qrEl.className="v "+(qr>=4?"pos":(qr<2?"neg":""));
+  const beEl=$("breakeven"); beEl.textContent = be===0?"now":(isFinite(be)?be.toFixed(0)+" mo":"—");
+  beEl.className="v "+(be===0?"pos":(isFinite(be)?"":"neg"));
+  const v=verdicts(m).concat(effVerdicts(eff)).concat(extraVerdicts(s));
   $("verdict").innerHTML=v.map(x=>`<div class="v ${x.level}"><span class="dot"></span><span>${x.msg}</span></div>`).join("");
   drawChart(projectMRR(s.mrr,s.growth,s.churn));
 }
@@ -229,7 +258,7 @@ try{$("yr").textContent=new Date().getFullYear();}catch(e){}
 KEYS.forEach(k=>{ try{const v=localStorage.getItem("runway."+k); if(v!=null) $(k).value=v;}catch(e){} });
 calc();
 
-if(typeof module!=="undefined") module.exports={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts};
+if(typeof module!=="undefined") module.exports={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts,quickRatio,monthsToBreakeven,extraVerdicts};
 </script>
 </body>
 </html>
