@@ -17,7 +17,7 @@ globalThis.window={matchMedia:()=>({matches:false})};
 globalThis.matchMedia=globalThis.window.matchMedia;
 
 const js=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]).sort((a,b)=>b.length-a.length)[0];
-const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts};`;
+const wrapped=js+`\n;globalThis.__t={saasMetrics,projectMRR,verdicts,growthEfficiency,effVerdicts};`;
 eval(wrapped);
 const t=globalThis.__t;
 
@@ -54,6 +54,22 @@ check('projectMRR: compounds net rate over 12 months',()=>{
 check('verdicts: flags weak LTV:CAC and short runway',()=>{
   const weak=t.verdicts(t.saasMetrics({...base,cac:2000,cash:60000}));
   assert.ok(weak.some(v=>v.level==='bad'));
+});
+
+check('growthEfficiency: Rule of 40 + burn multiple',()=>{
+  // net monthly +5% -> annualized ~79.6%; profit margin = -40000/20000 = -200%; rule40 ~ -120
+  const e=t.growthEfficiency(base);
+  assert.ok(Math.abs(e.annualGrowth-79.586)<0.1,'annualGrowth '+e.annualGrowth);
+  assert.ok(Math.abs(e.profitMargin-(-200))<0.001);
+  assert.ok(Math.abs(e.ruleOf40-(-120.41))<0.2,'r40 '+e.ruleOf40);
+  // netNewMRR = 20000*0.05 = 1000; burn 40000 -> 40x
+  assert.ok(Math.abs(e.burnMultiple-40)<0.001,'bm '+e.burnMultiple);
+  // profitable case: burn 0 -> burn multiple 0
+  assert.equal(t.growthEfficiency({...base,burn:0}).burnMultiple,0);
+});
+check('effVerdicts: flags sub-40 and high burn multiple',()=>{
+  const v=t.effVerdicts(t.growthEfficiency(base));
+  assert.ok(v.some(x=>x.level==='warn'||x.level==='bad'));
 });
 
 console.log(`\n${n} checks passed.`);
